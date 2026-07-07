@@ -62,7 +62,7 @@ export const verifySMSCode = async (req, res) => {
     let user = await User.findOne({ phone });
 
     if (!user) {
-      // Create new user
+      // Create new user with 3 days free subscription
       user = new User({
         phone,
         isVerified: true,
@@ -70,7 +70,7 @@ export const verifySMSCode = async (req, res) => {
           type: 'single',
           duration: '1month',
           startDate: new Date(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days free trial
         }
       });
 
@@ -178,5 +178,68 @@ export const refreshAccessToken = async (req, res) => {
   } catch (error) {
     logger.error('Refresh token error:', error);
     return res.status(500).json({ message: 'Failed to refresh token' });
+  }
+};
+
+export const getUser = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Find user and populate referral info
+    const user = await User.findById(userId)
+      .select('-__v')
+      .populate({
+        path: 'referredBy',
+        select: 'phone referralCode'
+      })
+      .populate({
+        path: 'children',
+        select: 'phone referralCode createdAt'
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if subscription is active
+    const isSubscriptionActive = user.subscription.isActive && new Date() <= user.subscription.endDate;
+
+    const userInfo = {
+      id: user._id,
+      phone: user.phone,
+      referralCode: user.referralCode,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin,
+      referredBy: user.referredBy,
+      childrenCount: user.children.length,
+      subscription: {
+        type: user.subscription.type,
+        duration: user.subscription.duration,
+        startDate: user.subscription.startDate,
+        endDate: user.subscription.endDate,
+        isActive: isSubscriptionActive,
+        daysRemaining: isSubscriptionActive 
+          ? Math.ceil((user.subscription.endDate - new Date()) / (1000 * 60 * 60 * 24))
+          : 0,
+        maxDevices: user.subscription.maxDevices
+      },
+      activeSessions: user.activeSessions.map(session => ({
+        deviceId: session.deviceId,
+        deviceName: session.deviceName,
+        loginTime: session.loginTime,
+        lastActivityTime: session.lastActivityTime
+      }))
+    };
+
+    logger.info(`User profile retrieved: ${user.phone}`);
+
+    return res.status(200).json({
+      message: 'User information retrieved successfully',
+      user: userInfo
+    });
+  } catch (error) {
+    logger.error('Get user error:', error);
+    return res.status(500).json({ message: 'Failed to retrieve user information' });
   }
 };
