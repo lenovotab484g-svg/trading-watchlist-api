@@ -13,7 +13,10 @@ export const verifyCodeSchema = Joi.object({
   phone: Joi.string()
     .pattern(/^[0-9]{10,15}$/)
     .required(),
-  code: Joi.string().length(4).required(),
+  code: Joi.string().length(5).pattern(/^[0-9]+$/).required().messages({
+    'string.pattern.base': 'Code must contain only digits',
+    'string.length': 'Code must be exactly 5 digits'
+  }),
   referralCode: Joi.string().allow(null, ''),
   deviceId: Joi.string().required(),
   deviceName: Joi.string().required()
