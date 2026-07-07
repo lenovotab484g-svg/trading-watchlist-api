@@ -1,1 +1,35 @@
-{\n  "name": "trading-chart",\n  "version": "1.0.0",\n  "description": "Rest API for trading chart with Express and MongoDB",\n  "main": "src/index.js",\n  "type": "module",\n  "scripts": {\n    "start": "node src/index.js",\n    "dev": "nodemon src/index.js",\n    "test": "jest"\n  },\n  "keywords": [\n    "trading",\n    "chart",\n    "api"\n  ],\n  "author": "",\n  "license": "MIT",\n  "dependencies": {\n    "express": "^5.2.1",\n    "mongoose": "^9.7.4",\n    "jsonwebtoken": "^9.1.2",\n    "bcryptjs": "^2.4.3",\n    "dotenv": "^16.4.5",\n    "joi": "^17.12.2",\n    "axios": "^1.7.2",\n    "cors": "^2.8.5",\n    "helmet": "^7.1.0",\n    "express-rate-limit": "^7.1.5"\n  },\n  "devDependencies": {\n    "nodemon": "^3.1.0",\n    "jest": "^29.7.0"\n  }\n}\n
+{
+  "name": "trading-chart",
+  "version": "1.0.0",
+  "description": "Rest API for trading chart with Express and MongoDB",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "trading",
+    "chart",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^9.7.4",
+    "jsonwebtoken": "^9.1.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "joi": "^17.12.2",
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "jest": "^29.7.0"
+  }
+}
