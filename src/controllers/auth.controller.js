@@ -98,12 +98,28 @@ export const verifySMSCode = async (req, res) => {
       logger.info(`New user registered: ${phone}`);
     }
 
-    // Check session limit
-    if (user.subscription.type === 'single' && user.activeSessions.length >= 1) {
-      // Remove previous session if single subscription
+    // Check session limit and manage active sessions
+    if (user.subscription.type === 'single') {
+      // Single subscription: remove previous session and add new one
       user.activeSessions = [];
-    } else if (user.subscription.type === 'multi' && user.activeSessions.length >= user.subscription.maxDevices) {
-      return res.status(429).json({ message: 'Maximum device limit reached' });
+    } else if (user.subscription.type === 'multi') {
+      // Multi subscription: check if max devices reached
+      if (user.activeSessions.length >= user.subscription.maxDevices) {
+        // Find the oldest session by lastActivityTime
+        let oldestSession = user.activeSessions[0];
+        let oldestIndex = 0;
+        
+        for (let i = 1; i < user.activeSessions.length; i++) {
+          if (new Date(user.activeSessions[i].lastActivityTime) < new Date(oldestSession.lastActivityTime)) {
+            oldestSession = user.activeSessions[i];
+            oldestIndex = i;
+          }
+        }
+        
+        // Remove the oldest session
+        user.activeSessions.splice(oldestIndex, 1);
+        logger.info(`Removed oldest session for user ${phone}: ${oldestSession.deviceName}`);
+      }
     }
 
     // Add new session
